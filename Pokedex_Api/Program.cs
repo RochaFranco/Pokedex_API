@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using System.Text.Json;
+using System.Linq;
 
 public class Program
 {
@@ -11,9 +12,6 @@ public class Program
         nombre_Pokemon = Console.ReadLine();
 
         Console.WriteLine(await Buscar_Pokemon(nombre_Pokemon));
-
-
-
 
         Console.ReadKey();
     }
@@ -39,7 +37,6 @@ public class Program
             return null;
         }
     }
-
 }
 
 public class PokemonSpecies
@@ -58,24 +55,13 @@ public class PokemonSpecies
             return name + " " + "No se encontró información de este Pokémon";
         }
         else
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.AppendLine(name + " Flavor Texts:");
-
-            foreach (var flavorTextEntry in flavor_text_entries)
-            {             
-                if (flavorTextEntry.language.name == "es")
-                {
-                    sb.AppendLine("- " + flavorTextEntry.flavor_text);
-                }
-            }
-
-            if (sb.Length == 0)
-            {
-                sb.AppendLine("No hay textos de sabor en español para este Pokémon.");
-            }
-
-            return sb.ToString();
+        {         
+            var Texto = flavor_text_entries
+                .Where(e => e.language.name == "es")
+                .Select(e => e.flavor_text.Replace('\n', ' '))
+                .Distinct()
+                .ToList();
+            return string.Join('\n', Texto);          
         }
 
     }
@@ -83,7 +69,6 @@ public class PokemonSpecies
 
 public class FlavorText
 {
-
     public string flavor_text { get; set; }
     public NamedAPIResource language { get; set; }
 }
