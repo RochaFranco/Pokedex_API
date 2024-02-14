@@ -17,7 +17,13 @@
 
     public static PokemonSpecies Buscar_Pokemon(string nombre_Pokemon)
     {
-        return new PokemonSpecies(420,nombre_Pokemon,new List<FlavorText>());
+        var Texto = new FlavorText("Gato", new NamedAPIResource("es", "https://mundogaturro.com"));
+
+        var lista = new List<FlavorText>();
+
+        lista.Add(Texto);
+
+        return new PokemonSpecies(420, nombre_Pokemon, lista);
     }
 
 }
@@ -39,19 +45,39 @@ public class PokemonSpecies
 
     public override string ToString()
     {
-        return "Texto generico";
+
+        if (FlavorTextEntries.Count == 0)
+        {
+            return Name + " " + "No se encontro informacion de este pokemon";
+        }
+        else
+        {
+            return Name + " " + FlavorTextEntries[0].Text;
+        }
+        
     }
 }
 
 public class FlavorText
 {
+    public FlavorText(string text, NamedAPIResource language)
+    {
+        Text = text;
+        Language = language;
+    }
+
     public string Text { get; set; }
     public NamedAPIResource Language { get; set; }
-
 }
 
 public class NamedAPIResource
 {
+    public NamedAPIResource(string name, string url)
+    {
+        Name = name;
+        Url = url;
+    }
+
     public string Name { get; set; }
     public string Url { get; set; }
 
