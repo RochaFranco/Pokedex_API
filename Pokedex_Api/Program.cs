@@ -1,13 +1,15 @@
-﻿public class Program
+﻿using System.Text.Json;
+
+public class Program
 {
-    public static void Main()
+    public static async Task Main()
     {
         string nombre_Pokemon;
 
         Console.WriteLine("Ingrese el nombre del pokemon el cual quiera saber la informacion");
         nombre_Pokemon = Console.ReadLine();
 
-        Console.WriteLine(Buscar_Pokemon(nombre_Pokemon));
+        Console.WriteLine(await Buscar_Pokemon(nombre_Pokemon));
 
 
 
@@ -15,70 +17,89 @@
         Console.ReadKey();
     }
 
-    public static PokemonSpecies Buscar_Pokemon(string nombre_Pokemon)
+    public static async Task<PokemonSpecies> Buscar_Pokemon(string nombre_Pokemon)
     {
-        var Texto = new FlavorText("Gato", new NamedAPIResource("es", "https://mundogaturro.com"));
+        string url = "https://pokeapi.co/api/v2/pokemon-species/" + nombre_Pokemon;
 
-        var lista = new List<FlavorText>();
+        HttpClient client = new HttpClient();
 
-        lista.Add(Texto);
+        var httpResponde = await client.GetAsync(url);
 
-        return new PokemonSpecies(420, nombre_Pokemon, lista);
+        if (httpResponde.IsSuccessStatusCode)
+        {
+            var content = await httpResponde.Content.ReadAsStringAsync();
+
+            PokemonSpecies pokemon = JsonSerializer.Deserialize<PokemonSpecies>(content);
+
+            return pokemon;
+        }
+        else
+        {
+            return null;
+        }
     }
 
 }
 
 public class PokemonSpecies
 {
-    public PokemonSpecies(int id, string name, List<FlavorText> flavorText)
-    {
-        Id = id;
-        Name = name;
-        FlavorTextEntries = flavorText;
-    }
+    public int id { get; set; }
+    public string name { get; set; }
 
-    public int Id { get; set; }
-    public string Name { get; set; }
-
-    public List<FlavorText> FlavorTextEntries { get; set; }
+    public List<FlavorText> flavor_text_entries { get; set; }
 
 
     public override string ToString()
     {
 
-        if (FlavorTextEntries.Count == 0)
+        if (flavor_text_entries.Count == 0)
         {
-            return Name + " " + "No se encontro informacion de este pokemon";
+            return name + " " + "No se encontro informacion de este pokemon";
         }
         else
         {
-            return Name + " " + FlavorTextEntries[0].Text;
+            return name + " " + flavor_text_entries[5].flavor_text;
         }
-        
+
     }
 }
 
 public class FlavorText
 {
-    public FlavorText(string text, NamedAPIResource language)
-    {
-        Text = text;
-        Language = language;
-    }
 
-    public string Text { get; set; }
-    public NamedAPIResource Language { get; set; }
+    public string flavor_text { get; set; }
+    public NamedAPIResource language { get; set; }
 }
 
 public class NamedAPIResource
 {
-    public NamedAPIResource(string name, string url)
+
+    public string name { get; set; }
+    public string url { get; set; }
+
+}
+
+public class PokemonClient
+{
+    public static async Task<PokemonSpecies> Buscar_Pokemon(string nombre_Pokemon)
     {
-        Name = name;
-        Url = url;
+        string url = "https://pokeapi.co/api/v2/pokemon-species/" + nombre_Pokemon;
+
+        HttpClient client = new HttpClient();
+
+        var httpResponde = await client.GetAsync(url);
+
+        if (httpResponde.IsSuccessStatusCode)
+        {
+            var content = await httpResponde.Content.ReadAsStringAsync();
+
+            PokemonSpecies pokemon = JsonSerializer.Deserialize<PokemonSpecies>(content);
+
+            return pokemon;
+        }
+        else
+        {
+            return null;
+        }
     }
-
-    public string Name { get; set; }
-    public string Url { get; set; }
-
 }
