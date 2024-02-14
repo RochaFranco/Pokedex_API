@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Text;
+using System.Text.Json;
 
 public class Program
 {
@@ -52,13 +53,29 @@ public class PokemonSpecies
     public override string ToString()
     {
 
-        if (flavor_text_entries.Count == 0)
+        if (flavor_text_entries == null || flavor_text_entries.Count == 0)
         {
-            return name + " " + "No se encontro informacion de este pokemon";
+            return name + " " + "No se encontró información de este Pokémon";
         }
         else
         {
-            return name + " " + flavor_text_entries[5].flavor_text;
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine(name + " Flavor Texts:");
+
+            foreach (var flavorTextEntry in flavor_text_entries)
+            {             
+                if (flavorTextEntry.language.name == "es")
+                {
+                    sb.AppendLine("- " + flavorTextEntry.flavor_text);
+                }
+            }
+
+            if (sb.Length == 0)
+            {
+                sb.AppendLine("No hay textos de sabor en español para este Pokémon.");
+            }
+
+            return sb.ToString();
         }
 
     }
